@@ -1,5 +1,6 @@
 import { 
     CART_ADD_ITEM, 
+    CART_ITEM_RESET, 
     CART_REMOVE_ITEM 
 } from "../constants/Cart";
 
@@ -8,8 +9,6 @@ export const addRemoveCart = (state = {cartItems : []}, action) => {
         case CART_ADD_ITEM:
             const item = action.payload;
             const existedItem = state.cartItems.find(x => x.product === item.product);
-
-            console.log(existedItem);
         
             if(existedItem){
                 return {
@@ -27,6 +26,8 @@ export const addRemoveCart = (state = {cartItems : []}, action) => {
                 ...state,
                 cartItems: state.cartItems.filter(x => x.product !== action.payload)
             }
+        case CART_ITEM_RESET:
+            return {}
         default:
             return state;
     }

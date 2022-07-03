@@ -3,11 +3,11 @@ import {Link, useParams} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {Row, Col, Image, ListGroup, Card, Button, ListGroupItem, Form} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from "axios";
 import Rating from '../components/Rating';
 import { getProductDetail } from '../actions/Product';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import { PRODUCT_DETAIL_RESET } from '../constants/Product';
 
 
 const Product = () => {
@@ -18,9 +18,8 @@ const Product = () => {
   const productDetail = useSelector(state => state.productDetail);
   const { loading, error, product} =  productDetail;
 
-  console.log('test');
-
   useEffect(() => {
+    dispatch({type: PRODUCT_DETAIL_RESET});
     dispatch(getProductDetail(id))
   }, [dispatch, id]);
 
@@ -53,7 +52,7 @@ const Product = () => {
                 <h4>Price: ${product.price}</h4>
               </ListGroupItem>
               <ListGroupItem>
-                <h4>Description: ${product.description}</h4>
+                <h4>Description: {product.description}</h4>
               </ListGroupItem>
             </ListGroup>
           </Col>

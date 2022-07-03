@@ -4,7 +4,8 @@ import {
     PRODUCT_LIST_FAIL, 
     PRODUCT_DETAIL_REQUEST, 
     PRODUCT_DETAIL_SUCCESS,
-    PRODUCT_DETAIL_FAIL } from "../constants/Product";
+    PRODUCT_DETAIL_FAIL, 
+    PRODUCT_DETAIL_RESET} from "../constants/Product";
 
 export const productList = (state = {products : []}, action) => {
     switch(action.type){
@@ -27,6 +28,8 @@ export const productDetail = (state = {product : {reviews: []}}, action) => {
             return { loading: false, product: action.payload};
         case PRODUCT_DETAIL_FAIL:
             return { loading: false, error: action.payload};
+        case PRODUCT_DETAIL_RESET:
+            return {};
         default:
             return state;
     }

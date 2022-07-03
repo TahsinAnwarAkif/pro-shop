@@ -20,13 +20,11 @@ const Cart = () => {
     }, [dispatch, id, qty]);
 
     const removeFromCartHandler = (id) => {
-        console.log('remove');
         dispatch(removeFromCart(id));
     }
 
     const checkoutHandler = () => {
-        history('/login?redirect=shipping');
-        console.log('checkout');
+        history('/login?redirect=/shipping');
     }
 
      return (
@@ -34,7 +32,7 @@ const Cart = () => {
             <Col md={8}>
                 <h1>Shopping Cart</h1>
 
-                {cartItems.length === 0 ? (
+                {!cartItems || cartItems.length === 0 ? (
                         <Alert variant='info'>
                             Your Cart is Empty. <Link to='/'>Go Back</Link>
                         </Alert>
@@ -76,27 +74,28 @@ const Cart = () => {
                         </ListGroup.Item>
                         ))}
                     </ListGroup>
-        )}
-                
+        )}      
             </Col>
-            <Col md={4}>
-                <Card>
-                    <ListGroup variant='flush'>
-                        <ListGroupItem>
-                            <h2>Subtotal: ({cartItems.reduce((acc, item) => acc + item.qty, 0)}) Items</h2>
-                            ${cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2)}
-                        </ListGroupItem>
-                        <ListGroupItem>
-                            <Button type='Button'
-                                    className='btn-block'
-                                    disabled={cartItems.length === 0}
-                                    onClick={checkoutHandler}>
-                                Proceed to Checkout
-                            </Button>
-                        </ListGroupItem>
-                    </ListGroup>
-                </Card>
-            </Col>
+             {cartItems && cartItems.length !== 0 && (
+                <Col md={4}>
+                    <Card>
+                        <ListGroup variant='flush'>
+                            <ListGroupItem>
+                                <h2>Subtotal: ({cartItems ? (cartItems.reduce((acc, item) => acc + Number(item.qty), 0)) : 0}) Items</h2>
+                                ${cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2)}
+                            </ListGroupItem>
+                            <ListGroupItem>
+                                <Button type='Button'
+                                        className='btn-block'
+                                        disabled={!cartItems && cartItems.length === 0}
+                                        onClick={checkoutHandler}>
+                                    Proceed to Checkout
+                                </Button>
+                            </ListGroupItem>
+                        </ListGroup>
+                    </Card>
+                </Col>   
+             )}
         </Row>
     )
     }
