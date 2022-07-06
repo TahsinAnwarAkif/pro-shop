@@ -3,7 +3,7 @@ import {Link, useSearchParams, useNavigate} from 'react-router-dom';
 import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../components/Loader';
-import { userProfileEdit } from '../actions/User';
+import { userProfileEdit, userRegister } from '../actions/User';
 import FormContainer from '../components/FormContainer';
 import Meta from '../components/Meta';
 
@@ -33,7 +33,7 @@ const Register = () => {
         if(password !== confirmPassword){
             setMessage('Password did not match!');
         }else{
-            dispatch(userProfileEdit(name, email, password));
+            dispatch(userRegister(name, email, password));
         }
     };
   

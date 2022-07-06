@@ -3,6 +3,12 @@ import dotenv from 'dotenv';
 import colors from 'colors';
 import morgan from 'morgan';
 import path from 'path';
+import mongoSanitize from 'express-mongo-sanitize';
+import helmet from 'helmet';
+import xss from 'xss-clean';
+import rateLimit from 'express-rate-limit';
+import hpp from 'hpp';
+import cors from 'cors';
 import connectDB from './config/db.js';
 import product from './routes/product.js';
 import user from './routes/user.js';
@@ -17,6 +23,18 @@ connectDB();
 const app = express();
 
 app.use(express.json());
+
+app.use(mongoSanitize());
+app.use(helmet());
+app.use(xss());
+app.use(hpp());
+app.use(cors());
+
+const limiter = rateLimit({
+	windowMs: 10 * 60 * 1000,
+	max: 100
+});
+app.use(limiter);
 
 app.use('/api/products', product);
 app.use('/api/users', user);
@@ -35,7 +53,7 @@ if(process.env.NODE_ENV === 'production'){
   });
 }else{
   app.use(morgan('dev'));
-
+  
   app.get('/', (req, res) => {
     res.send('Server is running...');
   });

@@ -44,6 +44,9 @@ const initialState = {
     userLogin: {
         user: userFromStorage
     },
+    userRegister: {
+        user: userFromStorage
+    },
     shipping: {
         shippingAddress: shippingAddressFromStorage
     },
@@ -57,5 +60,3 @@ const middleware = [thunk];
 const store = createStore(reducer, initialState, composeWithDevTools(applyMiddleware(...middleware)));
 
 export default store;
-
-// To add one element in store, the flow is: create reducer -> add it to store -> create action
