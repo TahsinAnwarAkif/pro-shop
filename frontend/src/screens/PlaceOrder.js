@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { placeOrder } from '../actions/Order';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { ORDER_GET_RESET } from '../constants/Order';
+import Meta from '../components/Meta';
 
 const PlaceOrder = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ const PlaceOrder = () => {
 
   return (
     <>
+      <Meta title='ProShop | Place Order'/>
       <CheckoutSteps step1 step2 step3 step4/>
       <Row>
         <Col md={8}>
@@ -86,7 +88,7 @@ const PlaceOrder = () => {
                                     <Image src={item.image} alt={item.name} fluid rounded/>
                                   </Col>
                                   <Col>
-                                    <Link to={`/product/${item.product}`}>{item.name}</Link>
+                                    <Link to={`/products/${item.product}`}>{item.name}</Link>
                                   </Col>
                                   <Col md={4}>
                                     {item.qty} x ${item.price} = ${item.qty * item.price}

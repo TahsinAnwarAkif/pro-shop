@@ -36,10 +36,10 @@ const placeOrder = asyncHandler(async (req, res) => {
     }
 });
 
-// @ desc   Get Order
-// @ route  GET /api/orders/:id
+// @ desc   Get Order by logged in user 
+// @ route  GET /api/orders/myorders/:id
 // @ access Private
-const getOrderById = asyncHandler(async (req, res) => {
+const getOrderByIdAndUserId = asyncHandler(async (req, res) => {
     const fetchedOrder = await Order.find({
         _id: req.params.id,
         user: req.user._id
@@ -55,9 +55,9 @@ const getOrderById = asyncHandler(async (req, res) => {
 });
 
 // @ desc   Get Orders by logged in user
-// @ route  GET /api/orders
+// @ route  GET /api/orders/myorders
 // @ access Private
-const getOrders = asyncHandler(async (req, res) => {
+const getOrdersByUserId = asyncHandler(async (req, res) => {
     const fetchedOrders = await Order.find({
         user: req.user._id
     })
@@ -75,9 +75,6 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
         user: req.user._id
     })
     .populate('user', 'name email');
-
-    console.log('fetchedOrder');
-    console.log(fetchedOrder);
 
     if(!fetchedOrder || fetchedOrder.length === 0){
         res.status(404);
@@ -98,4 +95,53 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     }
 });
 
-export {placeOrder, getOrderById, getOrders, updateOrderToPaid};
+// @ desc   Get Orders
+// @ route  GET /api/orders
+// @ access Private
+const getOrders = asyncHandler(async (req, res) => {
+    const fetchedOrders = await Order.find({})
+    .populate('user', 'name email');
+
+    res.status(200).json(fetchedOrders);
+});
+
+// @ desc   Get Order
+// @ route  GET /api/orders/:id
+// @ access Private
+const getOrderById = asyncHandler(async (req, res) => {
+    const fetchedOrder = await Order.find({
+        _id: req.params.id
+    })
+    .populate('user', 'name email');
+
+    if(!fetchedOrder || fetchedOrder.length === 0){
+        res.status(404);
+        throw new Error('Order not Found');
+    }else{
+        res.status(200).json(fetchedOrder[0]);
+    }
+});
+
+// @ desc   Mark Order as Delievered
+// @ route  PUT /api/orders/:id/deliver
+// @ access Private
+const updateOrderToDelivered = asyncHandler(async (req, res) => {
+    const fetchedOrder = await Order.find({
+        _id: req.params.id
+    })
+    .populate('user', 'name email');
+
+    if(!fetchedOrder || fetchedOrder.length === 0){
+        res.status(404);
+        throw new Error('Order not Found');
+    }else{
+        fetchedOrder[0].isDelivered = true;
+        fetchedOrder[0].deliveredAt = Date.now();
+
+        const updatedOrder = fetchedOrder[0].save();
+
+        res.status(201).json(updatedOrder);
+    }
+});
+
+export {placeOrder, getOrderByIdAndUserId, getOrdersByUserId, updateOrderToPaid, getOrders, updateOrderToDelivered, getOrderById};

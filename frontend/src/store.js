@@ -1,15 +1,16 @@
 import {createStore, combineReducers, applyMiddleware} from 'redux';
 import thunk from 'redux-thunk';
 import {composeWithDevTools} from 'redux-devtools-extension';
-import { productList, productDetail } from './reducers/Product';
+import { productList, productDetail, productDelete, productCreateUpdate, productCreateReview, topRatedProductList } from './reducers/Product';
 import { addRemoveCart } from './reducers/Cart';
-import { userLogin, userRegister, userProfile, userProfileEdit } from './reducers/User';
+import { userLogin, userRegister, userProfile, userProfileEdit, userList, userDelete } from './reducers/User';
 import { saveShippingAddress } from './reducers/Shipping';
 import { savePaymentMethod } from './reducers/Payment';
-import { orderGet, orderGetAll, orderPay, orderPlace } from './reducers/Order';
+import { orderDeliver, orderGet, orderGetAll, orderGetAllByUserId, orderPay, orderPlace } from './reducers/Order';
 
 const reducer = combineReducers({
     productList: productList,
+    topRatedProductList: topRatedProductList,
     productDetail: productDetail,
     cart: addRemoveCart,
     userLogin: userLogin,
@@ -20,8 +21,15 @@ const reducer = combineReducers({
     payment: savePaymentMethod,
     orderPlace: orderPlace,
     orderGet: orderGet,
+    orderGetAllByUserId: orderGetAllByUserId,
     orderGetAll: orderGetAll,
-    orderPay: orderPay
+    orderPay: orderPay,
+    userList: userList,
+    userDelete: userDelete,
+    productDelete: productDelete,
+    productCreateUpdate: productCreateUpdate,
+    orderDeliver: orderDeliver,
+    productCreateReview: productCreateReview
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems') ? JSON.parse(localStorage.getItem('cartItems')) : [];

@@ -12,7 +12,14 @@ import {
     USER_PROFILE_EDIT_REQUEST,
     USER_PROFILE_EDIT_SUCCESS,
     USER_PROFILE_EDIT_FAIL,
-    USER_PROFILE_RESET
+    USER_PROFILE_RESET,
+    USER_LIST_REQUEST_ADMIN,
+    USER_LIST_SUCCESS_ADMIN,
+    USER_LIST_FAIL_ADMIN,
+    USER_LIST_RESET_ADMIN,
+    USER_DELETE_REQUEST_ADMIN,
+    USER_DELETE_SUCCESS_ADMIN,
+    USER_DELETE_FAIL_ADMIN
     } from "../constants/User";
     
 export const userLogin = (state = {}, action) => {
@@ -43,10 +50,10 @@ export const userRegister = (state = {}, action) => {
     }
 }
 
-export const userProfile = (state = {userDetail: {}}, action) => {
+export const userProfile = (state = {}, action) => {
     switch(action.type){
         case USER_PROFILE_REQUEST:
-            return { ...state, loading: true};
+            return {loading: true};
         case USER_PROFILE_SUCCESS:
             return { loading: false, userDetail: action.payload};
         case USER_PROFILE_FAIL:
@@ -66,6 +73,34 @@ export const userProfileEdit = (state = {userDetail: {}}, action) => {
             return { loading: false, success: true, userDetail: action.payload};
         case USER_PROFILE_EDIT_FAIL:
            return { loading: false, error: action.payload};
+        default:
+           return state;
+    }
+}
+
+export const userList = (state = {users: []}, action) => {
+    switch(action.type){
+        case USER_LIST_REQUEST_ADMIN:
+            return { loading: true};
+        case USER_LIST_SUCCESS_ADMIN:
+            return { loading: false, users: action.payload};
+        case USER_LIST_FAIL_ADMIN:
+           return { loading: false, error: action.payload};
+        case USER_LIST_RESET_ADMIN:
+            return {users: []};
+        default:
+           return state;
+    }
+}
+
+export const userDelete = (state = {}, action) => {
+    switch(action.type){
+        case USER_DELETE_REQUEST_ADMIN:
+            return { loading: true};
+        case USER_DELETE_SUCCESS_ADMIN:
+            return { loading: false, success: true};
+        case USER_DELETE_FAIL_ADMIN:
+           return { loading: false, success: false, error: action.payload};
         default:
            return state;
     }

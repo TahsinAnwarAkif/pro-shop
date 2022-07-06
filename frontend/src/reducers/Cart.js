@@ -27,7 +27,7 @@ export const addRemoveCart = (state = {cartItems : []}, action) => {
                 cartItems: state.cartItems.filter(x => x.product !== action.payload)
             }
         case CART_ITEM_RESET:
-            return {}
+            return {cartItems: []}
         default:
             return state;
     }

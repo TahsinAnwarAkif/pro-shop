@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../components/Loader';
 import { userLogin } from '../actions/User';
 import FormContainer from '../components/FormContainer';
+import Meta from '../components/Meta';
 
 const Login = ({}) => {    
     const [email, setEmail] = useState('');
@@ -29,6 +30,8 @@ const Login = ({}) => {
     };
   
     return (
+    <>
+    <Meta title='ProShop | Login'/>
     <FormContainer>
         <h1>Sign In</h1>
         {error && <Alert variant='danger'>{error}</Alert>}
@@ -63,6 +66,7 @@ const Login = ({}) => {
             </Col>
         </Row>
     </FormContainer>
+    </>    
   )
 }
 

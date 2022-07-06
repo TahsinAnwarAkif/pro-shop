@@ -91,7 +91,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
                 res.status(400);
                 throw new Error('User with same email already exists!'); 
             }
-
+            
             fetchedUser.email = email;
         }
         
@@ -114,10 +114,93 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
+// @ desc   Get Users
+// @ route  GET /api/users
+// @ access Private
+const getUsers = asyncHandler(async (req, res) => {
+    const users = await user.find({}).select('-password');
+    
+    res.status(200).json(users);
+});
+
+// @ desc   Get User
+// @ route  GET /api/users/:id
+// @ access Private
+const getUser = asyncHandler(async (req, res) => {
+    const fetchedUser = await user.findById(req.params.id).select('-password');
+
+    if(fetchedUser){
+        res.status(200).json(fetchedUser);
+    }else{
+        res.status(404);
+        throw new Error('User not Found');
+    }
+});
+
+// @ desc   Update User
+// @ route  PUT /api/users/:id
+// @ access Private
+const updateUser = asyncHandler(async (req, res) => {
+    const {name, email, isAdmin} = req.body;
+    const fetchedUser = await user.findById(req.params.id);
+    
+    if(fetchedUser){
+        fetchedUser.name = name || fetchedUser.name;
+        fetchedUser.isAdmin = fetchedUser.isAdmin || isAdmin;
+        
+        if(email && fetchedUser.email !== email){
+            const userWithSameEmail = await user.findOne({email});
+            
+            if(userWithSameEmail){
+                res.status(400);
+                throw new Error('User with same email already exists!'); 
+            }
+            
+            fetchedUser.email = email;
+        }
+        
+        const updatedUser = await fetchedUser.save();
+        
+        res.status(201).json({
+            _id: updatedUser._id,
+            name:updatedUser.name,
+            email: updatedUser.email,
+            isAdmin: updatedUser.isAdmin,
+            token: generateToken(updatedUser._id)
+        });
+    }else{
+        res.status(404);
+        throw new Error('User not Found');
+    }
+});
+
+// @ desc   Delete User
+// @ route  DELETE /api/users/:id
+// @ access Private
+const deleteUser = asyncHandler(async (req, res) => {
+    const fetchedUser = await user.findById(req.params.id);
+
+    if(fetchedUser){
+        if(fetchedUser._id.equals(req.user._id)){
+          res.status(400);
+          throw new Error('Cannot delete Logged in User');
+        }else{
+          await fetchedUser.remove();
+          res.status(201).json({message: 'User removed'});    
+        }
+    }else{
+        res.status(404);
+        throw new Error('User not Found');
+    }
+});
 
 export {
     authUser,
     registerUser,
     getUserProfile,
+    getUsers,
+    getUser,
+    updateUser,
+    deleteUser,
     updateUserProfile
 }

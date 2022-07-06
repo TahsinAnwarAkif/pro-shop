@@ -11,7 +11,13 @@ import {
     ORDER_PAY_FAIL,
     ORDER_GET_ALL_REQUEST,
     ORDER_GET_ALL_SUCCESS,
-    ORDER_GET_ALL_FAIL
+    ORDER_GET_ALL_FAIL,
+    ORDER_GET_ALL_REQUEST_ADMIN,
+    ORDER_GET_ALL_SUCCESS_ADMIN,
+    ORDER_GET_ALL_FAIL_ADMIN,
+    ORDER_DELIVER_REQUEST_ADMIN,
+    ORDER_DELIVER_SUCCESS_ADMIN,
+    ORDER_DELIVER_FAIL_ADMIN
 } from "../constants/Order";
 
 export const placeOrder = (order) => async (dispatch, getState) => {
@@ -49,8 +55,16 @@ export const getOrder = (id) => async (dispatch, getState) => {
                 Authorization: `Bearer ${user.token}`
             }
         };
+
+        let api = '';
+
+        if(user.isAdmin){
+            api = `/api/orders/${id}`;
+        }else{
+            api = `/api/orders/myorders/${id}`;
+        }
         
-        const { data } = await axios.get(`/api/orders/${id}`, config);
+        const { data } = await axios.get(api, config);
         
         dispatch({
             type: ORDER_GET_SUCCESS,
@@ -64,7 +78,7 @@ export const getOrder = (id) => async (dispatch, getState) => {
     }
 };
 
-export const getAllOrders = () => async (dispatch, getState) => {
+export const getOrdersByUserId = () => async (dispatch, getState) => {
     try{       
         dispatch({type: ORDER_GET_ALL_REQUEST});
 
@@ -75,7 +89,7 @@ export const getAllOrders = () => async (dispatch, getState) => {
             }
         };
         
-        const { data } = await axios.get(`/api/orders`, config);
+        const { data } = await axios.get(`/api/orders/myorders`, config);
         
         dispatch({
             type: ORDER_GET_ALL_SUCCESS,
@@ -110,6 +124,57 @@ export const payOrder = (id, paymentResult) => async (dispatch, getState) => {
     }catch(error){
         dispatch({
             type: ORDER_PAY_FAIL,
+            payload: error.response && error.response.data.message ? error.response.data.message : error.message
+        });
+    }
+};
+
+export const getAllOrders = () => async (dispatch, getState) => {
+    try{       
+        dispatch({type: ORDER_GET_ALL_REQUEST_ADMIN});
+
+        const {userLogin: {user}} = getState();
+        const config = {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        };
+        
+        const { data } = await axios.get(`/api/orders`, config);
+        
+        dispatch({
+            type: ORDER_GET_ALL_SUCCESS_ADMIN,
+            payload: data
+        });
+    }catch(error){
+        dispatch({
+            type: ORDER_GET_ALL_FAIL_ADMIN,
+            payload: error.response && error.response.data.message ? error.response.data.message : error.message
+        });
+    }
+};
+
+export const deliverOrder = (id) => async (dispatch, getState) => {
+    try{       
+        dispatch({type: ORDER_DELIVER_REQUEST_ADMIN});
+
+        const {userLogin: {user}} = getState();
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user.token}`
+            }
+        };
+        
+        const { data } = await axios.put(`/api/orders/${id}/deliver`, {}, config);
+        
+        dispatch({
+            type: ORDER_DELIVER_SUCCESS_ADMIN,
+            payload: data
+        });
+    }catch(error){
+        dispatch({
+            type: ORDER_DELIVER_FAIL_ADMIN,
             payload: error.response && error.response.data.message ? error.response.data.message : error.message
         });
     }

@@ -1,17 +1,19 @@
 import React, {useState, useEffect} from 'react';
 import {Link, useParams, useNavigate} from 'react-router-dom';
-import { Row, Col, ListGroup, Image, Card, ListGroupItem, Alert } from 'react-bootstrap';
+import { Row, Col, ListGroup, Image, Card, ListGroupItem, Alert, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import {PayPalButton} from 'react-paypal-button-v2';
-import { getOrder, payOrder } from '../actions/Order';
+import { deliverOrder, getOrder, payOrder } from '../actions/Order';
 import Loader from '../components/Loader';
-import { ORDER_PAY_RESET } from '../constants/Order';
+import { ORDER_DELIVER_RESET_ADMIN, ORDER_PAY_RESET } from '../constants/Order';
+import Meta from '../components/Meta';
 
 const Order = () => {
     const dispatch = useDispatch();
     const history = useNavigate();
     const [sdkReady, setSdkReady] = useState(false);
+    const [successOnDeliverMsg, setSuccessOnDeliverMsg] = useState('');
     const { id } = useParams();
     const login = useSelector(state => state.userLogin);
     const {user} = login;
@@ -19,6 +21,8 @@ const Order = () => {
     const {loading, error, order} = orderGet;
     const orderPay = useSelector(state => state.orderPay);
     const {loading: loadingPay, success: successPay} = orderPay;
+    const orderDeliver = useSelector(state => state.orderDeliver);
+    const {loading: loadingDeliver, success: successDeliver} = orderDeliver;
     
     useEffect(() => {
         if(!user || Object.keys(user).length == 0){
@@ -37,8 +41,9 @@ const Order = () => {
                 document.body.appendChild(script);
             };
 
-            if(!order || successPay){
+            if(!order || successPay || successDeliver){
                 dispatch({type: ORDER_PAY_RESET});
+                dispatch({type: ORDER_DELIVER_RESET_ADMIN});
                 dispatch(getOrder(id));
             }else if(!order.isPaid){
                 if(!window.paypal){
@@ -48,17 +53,27 @@ const Order = () => {
                 }
             }
         }
-    }, [dispatch, history, user, id, order, successPay]);
+    }, [dispatch, history, user, id, order, successPay, successDeliver]);
 
     const successPaymentHandler = (paymentResult) => {
         dispatch(payOrder(id, paymentResult))
     };
+  
+    const deliverHandler = (e, id) => {
+        e.preventDefault();
+
+        dispatch(deliverOrder(id));
+
+        setSuccessOnDeliverMsg('Order Marked as Delivered');
+    }
     
     return (loading ? <Loader/> 
     : error ? <Alert variant='danger'>{error}</Alert>
     : order ? 
     <>
         <h1>Order {order._id}</h1>
+        {successOnDeliverMsg && (<Alert variant='success'>{successOnDeliverMsg}</Alert>)}
+        <Meta title={`ProShop | Order | ${order._id}`}/>
         <Row>
             <Col md={8}>
                 <ListGroup variant='flush'>
@@ -71,7 +86,7 @@ const Order = () => {
                             {order.shippingAddress.address}, {order.shippingAddress.city}, 
                             {order.shippingAddress.postalCode}, {order.shippingAddress.country}
                         </p>
-                        {order.isDelivered ? <Alert variant='success'>Delivered on {order.deliveredAt}</Alert> 
+                        {order.isDelivered ? <Alert variant='success'>Delivered on {order.deliveredAt.substring(0, 10)}</Alert> 
                                            : <Alert variant='danger'>Not Delivered</Alert>}
                     </ListGroupItem>
                     <ListGroupItem>
@@ -80,7 +95,7 @@ const Order = () => {
                             <strong>Method:</strong>
                             {order.paymentMethod}
                         </p>
-                        {order.isPaid ? <Alert variant='success'>Paid on {order.paidAt}</Alert> 
+                        {order.isPaid ? <Alert variant='success'>Paid on {order.paidAt.substring(0, 10)}</Alert> 
                                       : <Alert variant='danger'>Not Paid</Alert>}
                     </ListGroupItem>
                     <ListGroupItem>
@@ -93,7 +108,7 @@ const Order = () => {
                                         <Image src={item.image} alt={item.name} fluid rounded/>
                                     </Col>
                                     <Col>
-                                        <Link to={`/product/${item.product}`}>{item.name}</Link>
+                                        <Link to={`/products/${item.product}`}>{item.name}</Link>
                                     </Col>
                                     <Col md={4}>
                                         {item.qty} x ${item.price} = ${item.qty * item.price}
@@ -135,13 +150,20 @@ const Order = () => {
                                 <Col>${order.totalPrice}</Col>
                             </Row>
                         </ListGroupItem>
-                        {!order.isPaid && (
+                        {user && !user.isAdmin && !order.isPaid && (
                             <ListGroupItem>
                                 {loadingPay && <Loader/>}
                                 {!sdkReady ? <Loader/> : (
                                     <PayPalButton amount={order.totalPrice} onSuccess={successPaymentHandler}/>
                                 )}
                         </ListGroupItem>
+                        )}
+                        {user && user.isAdmin && !order.isDelivered && (
+                            <ListGroupItem>
+                                <Button type='Button' className= 'btn btn-block' onClick={(e) => deliverHandler(e, order._id)}>
+                                    Mark as Delivered
+                                </Button>
+                            </ListGroupItem>
                         )}
                     </ListGroup>            
                 </Card>              
