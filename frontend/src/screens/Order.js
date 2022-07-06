@@ -150,7 +150,7 @@ const Order = () => {
                                 <Col>${order.totalPrice}</Col>
                             </Row>
                         </ListGroupItem>
-                        {user && !user.isAdmin && !order.isPaid && (
+                        {user && order && user._id === order.user._id && !order.isPaid && (
                             <ListGroupItem>
                                 {loadingPay && <Loader/>}
                                 {!sdkReady ? <Loader/> : (
@@ -158,7 +158,7 @@ const Order = () => {
                                 )}
                         </ListGroupItem>
                         )}
-                        {user && user.isAdmin && !order.isDelivered && (
+                        {user && user.isAdmin && order && order.isPaid && !order.isDelivered && (
                             <ListGroupItem>
                                 <Button type='Button' className= 'btn btn-block' onClick={(e) => deliverHandler(e, order._id)}>
                                     Mark as Delivered
